@@ -9,7 +9,7 @@
 # $ plist2json.py /path/to/file.plist | jq 
 # $ cat /path/to/file.plist | plist2json.py | jq
 
-import plistlib, sys, pprint, json
+import plistlib, sys, pprint, json, re
 
 def main():
     ## Check if STDIN is empty, if it is use the first argument as the file to read
@@ -30,8 +30,23 @@ Usage: cat <file> | plist2json.py""", file=sys.stderr)
 
 ## recursively iterate through the plist object, returning the same object but with bytes converted to strings for JSON dumping
 def plist_filter(plist):
+
+    ## this coverts bytes to a string so that it can be dumped as JSON
     if isinstance(plist, bytes):
-        return str(plist)  ## this coverts bytes to a string so that it can be dumped as JSON
+        try:
+            ## Even though its bytes, try to decode it as utf-8. If it works, return it as a string
+            return plist.decode('utf-8')
+        except UnicodeDecodeError:
+            pass
+
+        ## if it can't be decoded as utf-8, try to extract strings from the binary data
+        ms=re.findall(b"[\x20-\x7F]{4,}",plist)
+        if len(ms) and False: ## adding 'and False' here for now to disable this feature. It makes the outputted structure unpredictable and not sure if it's useful
+            # if theres extracted strings, return them as a list AND the raw str() 'encoded' bytes
+            return {"__raw":str(plist),
+                    "__strings": f"{[s.decode('utf-8') for s in ms]}"}
+        else:
+                return str(plist)
     elif isinstance(plist, list):
         return [plist_filter(x) for x in plist]
     elif isinstance(plist, dict):
