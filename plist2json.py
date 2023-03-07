@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-# This script converts a plist file to JSON. Either xml or binary plists are support
+# This script converts a plist file to JSON. Either xml or binary plists are supported
 # It can take a file over STDIN or as the first argument
 # It's key improvement over the built-in `plutil -convert json` is that it can handle plists with binary data.
+# ̌Binary values are just converted to strings with `str()` and appear in the JSON output as `"b\"\\x00\\x10\\xfa\\xff\\x00...\""`
 
 # Example usage:
 # $ plist2json.py /path/to/file.plist | jq 
