@@ -1,4 +1,4 @@
-# plist2json
+# plist2json - with binary support
 ### Convert a plist to JSON including binary values! (unlike `plutil -convert json`)
 
 - This script converts a plist file to JSON. Either xml or binary plists are supported.
